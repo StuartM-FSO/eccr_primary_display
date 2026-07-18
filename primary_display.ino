@@ -2,6 +2,7 @@
 #include "display_hal.h"
 #include "uart_hal.h"
 #include "time_helpers.h"
+#include "forma"
 
 constexpr uint32_t FREQUENCY_MAIN_LOOP_MS = 1000U;
 
