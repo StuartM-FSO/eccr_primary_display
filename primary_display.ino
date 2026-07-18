@@ -2,9 +2,10 @@
 #include "display_hal.h"
 #include "uart_hal.h"
 #include "time_helpers.h"
-#include "forma"
+#include "format_for_print.h"
 
 constexpr uint32_t FREQUENCY_MAIN_LOOP_MS = 1000U;
+constexpr uint8_t THREE_CELLS = 3U;
 
 typedef enum{
   INIT_OK,
@@ -42,6 +43,8 @@ void setup() {
   if(system_set_fsm(FSM_START) != STATE_OK){
     debug_handle_error("setup assign fsm_start");
   }
+  display_blank_line(DISPLAY_ROW_STATUS);
+  display_blank_line(DISPLAY_ROW_PPO2);
 }
 
 void loop() {
@@ -76,23 +79,43 @@ void loop() {
 // 1 - FSM Handlers
 
 void fsm_start(){
+  display_print_status("STARTING");
+  delay(1000);
   system_set_fsm(FSM_READY);
+  display_blank_line(DISPLAY_ROW_STATUS);
 }
 
 void fsm_ready(uint32_t now){
   uint32_t last_cell_read_ms = 0U;
   uint16_t ppo2_from_uart_x1000[3] = {0U};
+  char cell_buffers[THREE_CELLS][FORMATTING_PPO2_STR_LEN];
+  const char *cells[THREE_CELLS];
 
   if(system_get_main_loop_timer(&last_cell_read_ms) != STATE_OK){
     debug_handle_error("FSM Ready get timer");
   }
   if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
     uart_hal_read_cells(ppo2_from_uart_x1000);
-    for(int i = 0; i < 3; i++){
-      Serial.print(ppo2_from_uart_x1000[i]);
+    
+    /*for(uint8_t channel = 0U; channel < THREE_CELLS; channel++){
+      format_ppo2_to_text(ppo2_from_uart_x1000[channel], buffer);
+      cells[channel] = buffer;
+      Serial.print(cells[channel]);
+      Serial.print(" ");
+    }*/
+
+    for (uint8_t i = 0; i < THREE_CELLS; i++) {
+      format_ppo2_to_text(ppo2_from_uart_x1000[i], cell_buffers[i]);
+      cells[i] = cell_buffers[i];
+    }
+
+    // For loop 2
+    for(int i = 0; i < THREE_CELLS; i++){
+      Serial.print(cells[i]);
       Serial.print(" ");
     }
     Serial.println();
+    display_print_ppo2(cells);
     system_set_main_loop_timer(now);
   }
 }

@@ -27,6 +27,7 @@ display_state_t display_init(){
   if(state.initialised){
     return DISPLAY_OK;
   }
+  Wire.setClock(400000);
   Wire.begin();
   state.lcd.init();
   state.initialised = true;
