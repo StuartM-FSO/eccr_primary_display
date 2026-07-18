@@ -10,6 +10,16 @@ typedef enum{
   STATE_UNINITIALISED
 } system_state_t;
 
-system_state_t system_init();
+typedef enum{
+  FSM_ZERO_COUNT = 0,     // Do not add states before here
+  FSM_START,
+  FSM_READY,
+  FSM_UNINITIALISED,
+  FSM_HARD_FAILURE,
+  FSM_END_COUNT           // Do not add states past here
+} fsm_state_t;
 
+system_state_t system_init();
+system_state_t system_set_fsm(const fsm_state_t fsm_state);
+system_state_t system_get_fsm(fsm_state_t * const fsm_state);
 #endif
