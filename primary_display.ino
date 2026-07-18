@@ -1,10 +1,12 @@
 #include "system_state.h"
 #include "display_hal.h"
+#include "uart_hal.h"
 
 typedef enum{
   INIT_OK,
   INIT_SYSTEM_STATE_FAILED,
   INIT_DISPLAY_FAILED,
+  INIT_UART_FAILED,
   INIT_UNINITIALISED
 } init_state_t;
 
@@ -22,6 +24,10 @@ void setup() {
   if((display_init() != DISPLAY_OK) && proceed){
     init_failure_cause = INIT_DISPLAY_FAILED;
     proceed = false; 
+  }
+  if(uart_hal_init() != UART_OK && proceed){
+    init_failure_cause = INIT_UART_FAILED;
+    proceed = false;
   }
 
   if(!proceed){

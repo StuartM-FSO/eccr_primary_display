@@ -6,6 +6,7 @@
 #include <sys/_stdint.h>
 #include "display_hal.h"
 #include "Waveshare_LCD1602.h"
+#include <Wire.h>
 
 static constexpr uint8_t ROWS = 2U;
 static constexpr uint8_t COLUMNS = 16U;
