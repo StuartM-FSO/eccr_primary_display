@@ -1,8 +1,10 @@
 #include "system_state.h"
+#include "display_hal.h"
 
 typedef enum{
   INIT_OK,
   INIT_SYSTEM_STATE_FAILED,
+  INIT_DISPLAY_FAILED,
   INIT_UNINITIALISED
 } init_state_t;
 
@@ -17,13 +19,19 @@ void setup() {
     init_failure_cause = INIT_SYSTEM_STATE_FAILED;
     proceed = false;
   }
+  if((display_init() != DISPLAY_OK) && proceed){
+    init_failure_cause = INIT_DISPLAY_FAILED;
+    proceed = false; 
+  }
 
   if(!proceed){
     if(system_set_fsm(FSM_UNINITIALISED) != STATE_OK){
-      
+      debug_handle_error("Failed at init");
     }
   }
-
+  if(system_set_fsm(FSM_START) != STATE_OK){
+    debug_handle_error("setup assign fsm_start");
+  }
 }
 
 void loop() {
