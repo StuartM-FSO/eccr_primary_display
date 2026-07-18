@@ -1,11 +1,24 @@
-#include <sys/_intsup.h>
+// NOTES
+//  1. Cell values to be sent as char arrays in format:
+//     const char *cells[] = {"1.02", "1.0*", "1.04"};
+
+#include <cstddef>
+#include <sys/_stdint.h>
 #include "display_hal.h"
+#include "Waveshare_LCD1602.h"
+
+static constexpr uint8_t ROWS = 2U;
+static constexpr uint8_t COLUMNS = 16U;
+static constexpr uint8_t COLUMN_CELL_0 = 0U;
+static constexpr uint8_t COLUMN_CELL_INCREMENT = 5U;
+static constexpr char BLANK_LINE[] = "                ";
 
 typedef struct{
   bool initialised;
+  Waveshare_LCD1602 lcd{COLUMNS, ROWS};
 } internal_state_t;
 
-static internal_state_t state = {};
+static internal_state_t state;
 
 // Public API
 
@@ -13,6 +26,44 @@ display_state_t display_init(){
   if(state.initialised){
     return DISPLAY_OK;
   }
+  Wire.begin();
+  state.lcd.init();
   state.initialised = true;
+  return DISPLAY_OK;
+}
+
+display_state_t display_print_ppo2(const char *cells_text[]){   // See Note 1
+  if(!state.initialised){
+    return DISPLAY_UNINITIALISED;
+  }
+  for(uint8_t channel = 0U; channel < 3; channel++){
+    uint8_t column = COLUMN_CELL_0 + COLUMN_CELL_INCREMENT * channel;
+    state.lcd.setCursor(column, DISPLAY_ROW_PPO2);
+    state.lcd.send_string(cells_text[channel]);
+  }
+  return DISPLAY_OK;
+}
+
+display_state_t display_print_status(const char message[]){
+  if(!state.initialised){
+    return DISPLAY_UNINITIALISED;
+  }
+  if(message == NULL){
+    return DISPLAY_INVALID_PARAMETER;
+  }
+  state.lcd.setCursor(0, DISPLAY_ROW_STATUS);
+  state.lcd.send_string(message);
+  return DISPLAY_OK;
+}
+
+display_state_t display_blank_line(const uint8_t row){
+  if(!state.initialised){
+    return DISPLAY_UNINITIALISED;
+  }
+  if((row != DISPLAY_ROW_PPO2) && (row != DISPLAY_ROW_STATUS)){
+    return DISPLAY_INVALID_PARAMETER;
+  }
+  state.lcd.setCursor(0, row);
+  state.lcd.send_string(BLANK_LINE);
   return DISPLAY_OK;
 }
