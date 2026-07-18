@@ -1,6 +1,9 @@
 #include "system_state.h"
 #include "display_hal.h"
 #include "uart_hal.h"
+#include "time_helpers.h"
+
+constexpr uint32_t FREQUENCY_MAIN_LOOP_MS = 1000U;
 
 typedef enum{
   INIT_OK,
@@ -42,6 +45,7 @@ void setup() {
 
 void loop() {
   fsm_state_t current_fsm_state;
+  uint32_t now = millis();
 
   if(system_get_fsm(&current_fsm_state) != STATE_OK){
     debug_handle_error("loop read fsm state");
@@ -53,7 +57,7 @@ void loop() {
       fsm_start();
       break;
     case FSM_READY:
-      fsm_ready();
+      fsm_ready(now);
       break;
     case FSM_HARD_FAILURE:
       fsm_hard_failure();
@@ -71,11 +75,25 @@ void loop() {
 // 1 - FSM Handlers
 
 void fsm_start(){
-
+  system_set_fsm(FSM_READY);
 }
 
-void fsm_ready(){
+void fsm_ready(uint32_t now){
+  uint32_t last_cell_read_ms = 0U;
+  uint16_t ppo2_from_uart_x1000[3] = {0U};
 
+  if(system_get_main_loop_timer(&last_cell_read_ms) != STATE_OK){
+    debug_handle_error("FSM Ready get timer");
+  }
+  if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
+    uart_hal_read_cells(ppo2_from_uart_x1000);
+    for(int i = 0; i < 3; i++){
+      Serial.print(ppo2_from_uart_x1000[i]);
+      Serial.print(" ");
+    }
+    Serial.println();
+    system_set_main_loop_timer(now);
+  }
 }
 
 void fsm_hard_failure(){

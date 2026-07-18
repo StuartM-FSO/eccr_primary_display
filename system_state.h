@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 #ifndef SYSTEM_STATE_H
 #define SYSTEM_STATE_H
 
@@ -22,4 +23,9 @@ typedef enum{
 system_state_t system_init();
 system_state_t system_set_fsm(const fsm_state_t fsm_state);
 system_state_t system_get_fsm(fsm_state_t * const fsm_state);
+
+system_state_t system_set_main_loop_timer(const uint32_t main_loop_timer);
+system_state_t system_get_main_loop_timer(uint32_t * const main_loop_timer);
+
+
 #endif
