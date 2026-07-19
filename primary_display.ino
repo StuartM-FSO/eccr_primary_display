@@ -96,26 +96,7 @@ void fsm_ready(uint32_t now){
   }
   if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
     uart_hal_read_cells(ppo2_from_uart_x1000);
-    
-    /*for(uint8_t channel = 0U; channel < THREE_CELLS; channel++){
-      format_ppo2_to_text(ppo2_from_uart_x1000[channel], buffer);
-      cells[channel] = buffer;
-      Serial.print(cells[channel]);
-      Serial.print(" ");
-    }*/
-
-    for (uint8_t i = 0; i < THREE_CELLS; i++) {
-      format_ppo2_to_text(ppo2_from_uart_x1000[i], cell_buffers[i]);
-      cells[i] = cell_buffers[i];
-    }
-
-    // For loop 2
-    for(int i = 0; i < THREE_CELLS; i++){
-      Serial.print(cells[i]);
-      Serial.print(" ");
-    }
-    Serial.println();
-    display_print_ppo2(cells);
+    display_print_ppo2(ppo2_from_uart_x1000);
     system_set_main_loop_timer(now);
   }
 }
