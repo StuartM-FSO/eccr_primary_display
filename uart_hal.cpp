@@ -7,7 +7,7 @@ constexpr uint8_t THREE_CELLS = 3U;
 
 // Debug constants - remove before production
 constexpr uint8_t CELLMOD_ALL_AGREE = 4U;
-constexpr bool COMMUNICATION_OK = true;
+constexpr bool COMMUNICATION_OK = false;
 
 static change_t random_choice(const int16_t ppo2);
 
@@ -15,7 +15,6 @@ static change_t random_choice(const int16_t ppo2);
 
 typedef struct{
   bool initialised;
-  bool connected;
   uint16_t cells[THREE_CELLS];
 } uart_internal_state_t;
 
@@ -29,7 +28,6 @@ uart_state_t uart_hal_init(){
   for(uint8_t channel = 0U; channel < THREE_CELLS; channel++){
     state.cells[channel] = 1000u;
   }
-  state.connected = false;
   state.initialised = true;
   return UART_OK;
 }
@@ -38,7 +36,6 @@ uart_state_t uart_hal_controller_connected(void){
   if(!state.initialised){
     return UART_UNINITIALISED;
   }
-  state.connected = COMMUNICATION_OK;
   return (COMMUNICATION_OK) ? UART_OK : UART_CONNECTION_FAILED;
 }
 
@@ -46,7 +43,7 @@ uart_state_t uart_hal_read_cells(uint16_t cells[]){
   if(!state.initialised){
     return UART_UNINITIALISED;
   }
-  if(!state.connected){
+  if(uart_hal_controller_connected() != UART_OK){
     return UART_CONNECTION_FAILED;
   }
   uint16_t simulated_ppo2_X1000[THREE_CELLS];
