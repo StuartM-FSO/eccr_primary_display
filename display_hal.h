@@ -17,7 +17,7 @@ typedef enum{
 
 display_state_t display_init();
 display_state_t display_print_ppo2(uint16_t ppo2_x1000[]);
-display_state_t display_print_status(const char message[]);
+display_state_t display_print_pulse_symbol(void);
 display_state_t display_blank_line(const uint8_t row);
 
 #endif

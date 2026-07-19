@@ -13,10 +13,14 @@ static constexpr uint8_t ROWS = 2U;
 static constexpr uint8_t COLUMNS = 16U;
 static constexpr uint8_t COLUMN_CELL_0 = 0U;
 static constexpr uint8_t COLUMN_CELL_INCREMENT = 5U;
+static constexpr uint8_t COLUMN_OK_SYMBOL = 15U;
 static constexpr char BLANK_LINE[] = "                ";
+static constexpr char SYMBOL_PULSE[] = "+";
+static constexpr char SPACE[] = " ";
 
 typedef struct{
   bool initialised;
+  bool pulse_on;
   Waveshare_LCD1602 lcd{COLUMNS, ROWS};
 } internal_state_t;
 
@@ -31,6 +35,7 @@ display_state_t display_init(){
   Wire.begin();
   state.lcd.init();
   state.initialised = true;
+  state.pulse_on = true;
   return DISPLAY_OK;
 }
 
@@ -52,15 +57,17 @@ display_state_t display_print_ppo2(uint16_t ppo2_x1000[]){   // See Note 1
   return DISPLAY_OK;
 }
 
-display_state_t display_print_status(const char message[]){
+display_state_t display_print_pulse_symbol(void){
   if(!state.initialised){
     return DISPLAY_UNINITIALISED;
   }
-  if(message == NULL){
-    return DISPLAY_INVALID_PARAMETER;
+  state.lcd.setCursor(COLUMN_OK_SYMBOL, DISPLAY_ROW_PPO2);
+  if(state.pulse_on){
+    state.lcd.send_string(SYMBOL_PULSE);
+  } else {
+    state.lcd.send_string(SPACE);
   }
-  state.lcd.setCursor(0, DISPLAY_ROW_STATUS);
-  state.lcd.send_string(message);
+  state.pulse_on = !state.pulse_on;
   return DISPLAY_OK;
 }
 
