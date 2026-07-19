@@ -38,7 +38,6 @@ uart_state_t uart_hal_controller_connected(void){
     return UART_UNINITIALISED;
   }
   uint8_t connected = random(0,2);
-  Serial.println(connected);
   return (connected == 1U) ? UART_CONNECTION_FAILED : UART_OK;
 }
 
