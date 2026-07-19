@@ -94,19 +94,24 @@ void fsm_ready(uint32_t now){
   }
   if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
     uart_state_t uart_read_result;
+    bool connected;
 
     uart_read_result = uart_hal_read_cells(ppo2_from_uart_x1000);
     if(uart_read_result == UART_CONNECTION_FAILED){
-      debug_handle_error("fsm_ready uart connection failed");
+      //debug_handle_error("fsm_ready uart connection failed");
+      connected = false;
     }
     if(uart_read_result == UART_OK){
-      display_print_ppo2(ppo2_from_uart_x1000);
+      connected = true;
     }
     if((uart_read_result != UART_CONNECTION_FAILED) && (uart_read_result != UART_OK)){
       Serial.println(uart_read_result);
       debug_handle_error("fsm_ready uart unknown error");
+      return;
     }
+    display_print_ppo2(ppo2_from_uart_x1000, connected);
     display_print_pulse_symbol();
+    display_print_status(connected);
     system_set_main_loop_timer(now);
   }
 }

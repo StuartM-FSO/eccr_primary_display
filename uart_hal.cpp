@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include <sys/_stdint.h>
 #include "api/Common.h"
 #include "uart_hal.h"
@@ -36,7 +37,9 @@ uart_state_t uart_hal_controller_connected(void){
   if(!state.initialised){
     return UART_UNINITIALISED;
   }
-  return (COMMUNICATION_OK) ? UART_OK : UART_CONNECTION_FAILED;
+  uint8_t connected = random(0,2);
+  Serial.println(connected);
+  return (connected == 1U) ? UART_CONNECTION_FAILED : UART_OK;
 }
 
 uart_state_t uart_hal_read_cells(uint16_t cells[]){
