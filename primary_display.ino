@@ -78,7 +78,7 @@ void loop() {
 // 1 - FSM Handlers
 
 void fsm_start(){
-  display_print_status("STARTING");
+  //display_print_status("STARTING");
   delay(1000);
   system_set_fsm(FSM_READY);
   display_blank_line(DISPLAY_ROW_STATUS);
@@ -87,15 +87,14 @@ void fsm_start(){
 void fsm_ready(uint32_t now){
   uint32_t last_cell_read_ms = 0U;
   uint16_t ppo2_from_uart_x1000[3] = {0U};
-  char cell_buffers[THREE_CELLS][FORMATTING_PPO2_STR_LEN];
-  const char *cells[THREE_CELLS];
-
+  
   if(system_get_main_loop_timer(&last_cell_read_ms) != STATE_OK){
     debug_handle_error("FSM Ready get timer");
   }
   if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
     uart_hal_read_cells(ppo2_from_uart_x1000);
     display_print_ppo2(ppo2_from_uart_x1000);
+    display_print_pulse_symbol();
     system_set_main_loop_timer(now);
   }
 }
