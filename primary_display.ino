@@ -82,6 +82,7 @@ void fsm_start(){
   delay(1000);
   system_set_fsm(FSM_READY);
   display_blank_line(DISPLAY_ROW_STATUS);
+  uart_hal_controller_connected();
 }
 
 void fsm_ready(uint32_t now){
@@ -92,8 +93,19 @@ void fsm_ready(uint32_t now){
     debug_handle_error("FSM Ready get timer");
   }
   if(has_timer_elapsed(now, last_cell_read_ms, FREQUENCY_MAIN_LOOP_MS)){
-    uart_hal_read_cells(ppo2_from_uart_x1000);
-    display_print_ppo2(ppo2_from_uart_x1000);
+    uart_state_t uart_read_result;
+
+    uart_read_result = uart_hal_read_cells(ppo2_from_uart_x1000);
+    if(uart_read_result == UART_CONNECTION_FAILED){
+      debug_handle_error("fsm_ready uart connection failed");
+    }
+    if(uart_read_result == UART_OK){
+      display_print_ppo2(ppo2_from_uart_x1000);
+    }
+    if((uart_read_result != UART_CONNECTION_FAILED) && (uart_read_result != UART_OK)){
+      Serial.println(uart_read_result);
+      debug_handle_error("fsm_ready uart unknown error");
+    }
     display_print_pulse_symbol();
     system_set_main_loop_timer(now);
   }

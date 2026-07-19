@@ -14,7 +14,8 @@ typedef enum{
 typedef enum{
   UART_OK,
   UART_UNINITIALISED,
-  UART_INVALID_PARAMETER
+  UART_INVALID_PARAMETER,
+  UART_CONNECTION_FAILED
 } uart_state_t;
 
 uart_state_t uart_hal_init();
