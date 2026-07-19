@@ -2,7 +2,6 @@
 #include "display_hal.h"
 #include "uart_hal.h"
 #include "time_helpers.h"
-#include "format_for_print.h"
 
 constexpr uint32_t FREQUENCY_MAIN_LOOP_MS = 1000U;
 constexpr uint8_t THREE_CELLS = 3U;
