@@ -7,6 +7,7 @@
 #include "display_hal.h"
 #include "Waveshare_LCD1602.h"
 #include <Wire.h>
+#include "format_for_print.h"
 
 static constexpr uint8_t ROWS = 2U;
 static constexpr uint8_t COLUMNS = 16U;
@@ -27,21 +28,26 @@ display_state_t display_init(){
   if(state.initialised){
     return DISPLAY_OK;
   }
-  Wire.setClock(400000);
   Wire.begin();
   state.lcd.init();
   state.initialised = true;
   return DISPLAY_OK;
 }
 
-display_state_t display_print_ppo2(const char *cells_text[]){   // See Note 1
+display_state_t display_print_ppo2(uint16_t ppo2_x1000[]){   // See Note 1
   if(!state.initialised){
     return DISPLAY_UNINITIALISED;
   }
+  if(ppo2_x1000 == NULL){
+    return DISPLAY_INVALID_PARAMETER;
+  }
   for(uint8_t channel = 0U; channel < 3; channel++){
+    char buffer[FORMATTING_PPO2_STR_LEN];
     uint8_t column = COLUMN_CELL_0 + COLUMN_CELL_INCREMENT * channel;
+
+    format_ppo2_to_text(ppo2_x1000[channel], buffer);
     state.lcd.setCursor(column, DISPLAY_ROW_PPO2);
-    state.lcd.send_string(cells_text[channel]);
+    state.lcd.send_string(buffer);
   }
   return DISPLAY_OK;
 }
