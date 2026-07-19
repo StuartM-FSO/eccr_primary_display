@@ -1,8 +1,11 @@
 #include <sys/_stdint.h>
 #include "api/Common.h"
 #include "uart_hal.h"
+#include "cell_module.h"
 
 constexpr uint8_t THREE_CELLS = 3U;
+
+constexpr uint8_t CELLMOD_ALL_AGREE = 4U;
 
 static change_t random_choice(const int16_t ppo2);
 
@@ -34,6 +37,16 @@ uart_state_t uart_hal_controller_connected(void){
 }
 
 uart_state_t uart_hal_read_cells(uint16_t cells[]){
+  uint16_t simulated_ppo2_X1000[THREE_CELLS];
+
+  cellmod_get_reading(simulated_ppo2_X1000, CELLMOD_ALL_AGREE);
+  for(uint8_t channel = 0U; channel < THREE_CELLS; channel++){
+    cells[channel] = simulated_ppo2_X1000[channel];
+  }
+  return UART_OK;
+}
+
+uart_state_t x_uart_hal_read_cells(uint16_t cells[]){
   uint16_t current_ppo2 = 0U;
   change_t random_outcome;
   for(uint8_t channel = 0U; channel < THREE_CELLS; channel++){
